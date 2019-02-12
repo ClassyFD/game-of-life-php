@@ -1,58 +1,54 @@
 <!DOCTYPE html>
   <html>
     <head>
-      <title>PHP Playground</title>
+      <title>Game of Life PHP</title>
       <meta charset="utf-8">
       <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-      <meta name="description" content="PHP Playground">
+      <meta name="description" content="Game of Life PHP">
       <meta name="viewport" content="width=device-width, initial-scale=1">
-      <style type="text/css"></style>
+      <style type="text/css"></style>      
+      <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     </head>
     <style>
       <?php include('./index.css')?>
     </style>
     <body>
-      <?php
-        
-        function createGrid() {
-          define('$xAxis', array());
-          for ($i = 0; $i <= 32; $i++) {
-            $xAxis["column" . $i] = array();
-            for ($j = 0; $j <= 32; $j++) {
-              $xAxis[$i][$i . "," . $j] = 0;
-            };
-          };
-          return $xAxis;
-        }
-        
-        $grid = createGrid();
-        // $GLOBALS['grid'] = createGrid();
-        echo "
-        <script type='text/javascript'>
-          function clickBlock(key) {
-            const key1 = parseInt(key.split(',')[0]);
-            const key2 = parseInt(key.split(',')[1]);
-            
-            console.log(key1);
-            console.log(key2);
-          }
-        </script>
-      ";
-
-        echo "
-          <main class='game'>
-            <div class='block-container'>
-        ";
-        foreach($grid as $key=>$value) {
-          foreach($value as $key => $value) {
-            $escapedString = json_encode($key);
-            echo $value === 1? 
-            // "<div onclick='clickBlock($escapedString)' class=\"grid-block-alive grid-block\"></div>" : 
-            // "<div onclick='clickBlock($escapedString)' class=\"grid-block-dead grid-block\"></div>";
-            "<a href=" class=\"grid-block-alive grid-block\"></a>" : 
-            "<a href=" class=\"grid-block-dead grid-block\"></a>";
-          };
-        };
+      <?php 
+        include('./grid.php');
       ?>
+      <main id="root">
+        <article id="game-container">
+        </article>
+        <h1>Created using PHP!</h1>
+      </main>
+     <script type="text/javascript">
+        function getGrid(newGrid) {
+          let blocks = newGrid || "<?php echo json_encode($blocks) ?>";
+          const container = document.getElementById('game-container');
+          blocks = JSON.parse(blocks);
+          blocks.map((xEl, xIn)=>{
+            xEl.map((jEl, jIn)=>{
+              let newDiv = document.createElement('div');
+              newDiv.id = `${xIn},${jIn}`;
+              newDiv.className = `grid-block-${jEl} grid-block`;
+              container.appendChild(newDiv);
+            })
+          })
+          setTimeout(() => {
+          $.ajax({
+            url: 'grid.php',
+            data: {blocks: blocks},
+            type: 'post',
+            success: function(output) {
+              while (container.firstChild) {
+                container.removeChild(container.firstChild);
+              }
+              getGrid(output);
+            }
+          })
+          }, 10);
+        }
+        getGrid();
+      </script> 
     </body>
   </html>
