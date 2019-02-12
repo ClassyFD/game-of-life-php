@@ -20,35 +20,86 @@
         <article id="game-container">
         </article>
         <h1>Created using PHP!</h1>
+        <button onclick="toggleStatus()">RESET</button>
       </main>
      <script type="text/javascript">
-        function getGrid(newGrid) {
-          let blocks = newGrid || "<?php echo json_encode($blocks) ?>";
-          const container = document.getElementById('game-container');
-          blocks = JSON.parse(blocks);
-          blocks.map((xEl, xIn)=>{
-            xEl.map((jEl, jIn)=>{
-              let newDiv = document.createElement('div');
-              newDiv.id = `${xIn},${jIn}`;
-              newDiv.className = `grid-block-${jEl} grid-block`;
-              container.appendChild(newDiv);
-            })
-          })
-          setTimeout(() => {
+        let currentBlocks;
+        let interval = setInterval(()=>{
+          tick();
+        }, 100);
+
+        function toggleStatus() {
+          currentBlocks = null;
+          clearInterval(interval);
           $.ajax({
             url: 'grid.php',
-            data: {blocks: blocks},
-            type: 'post',
+            data: {blocks: true},
+            type: 'get',
             success: function(output) {
+              let blocks = JSON.parse(output);
+              const container = document.getElementById('game-container');
               while (container.firstChild) {
                 container.removeChild(container.firstChild);
               }
-              getGrid(output);
+              currentBlocks = blocks;
+              interval = setInterval(()=>{
+                tick();
+              }, 100)
+              currentBlocks.map((xEl, xIn)=>{
+                xEl.map((jEl, jIn)=>{
+                  let newDiv = document.createElement('div');
+                  newDiv.className = `grid-block-${jEl} grid-block`;
+                  container.appendChild(newDiv);
+                })
+              })
             }
           })
-          }, 10);
         }
-        getGrid();
+        function tick() {
+          $.ajax({
+            url: 'grid.php',
+            data: {blocks: currentBlocks},
+            type: 'post',
+            success: function(output) {
+              let blocks = JSON.parse(output);
+              const container = document.getElementById('game-container');
+              while (container.firstChild) {
+                container.removeChild(container.firstChild);
+              }
+              currentBlocks = blocks;
+              currentBlocks.map((xEl, xIn)=>{
+                xEl.map((jEl, jIn)=>{
+                  let newDiv = document.createElement('div');
+                  newDiv.className = `grid-block-${jEl} grid-block`;
+                  container.appendChild(newDiv);
+                })
+              })
+            }
+          })
+        }
+        function initBlocks() {
+          $.ajax({
+            url: 'grid.php',
+            data: {blocks: true},
+            type: 'get',
+            success: function(output) {
+              let blocks = JSON.parse(output);
+              const container = document.getElementById('game-container');
+              while (container.firstChild) {
+                container.removeChild(container.firstChild);
+              }
+              currentBlocks = blocks;
+              currentBlocks.map((xEl, xIn)=>{
+                xEl.map((jEl, jIn)=>{
+                  let newDiv = document.createElement('div');
+                  newDiv.className = `grid-block-${jEl} grid-block`;
+                  container.appendChild(newDiv);
+                })
+              })
+            }
+          })
+        }
+        initBlocks();
       </script> 
     </body>
   </html>
