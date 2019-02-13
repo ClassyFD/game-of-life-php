@@ -1,27 +1,23 @@
 <?php
   class Grid {
-    public $grid = array();
     public function initGrid() {
-      $this->grid = array();
+      $grid = array();
       for ($i = 0; $i <= 32; $i++) {
-        $this->grid[$i] = array();
         for ($j = 0; $j <= 32; $j++) {
           $random = rand(0, 10);
-          $num;
           if ($random < 9) {
             $num = 0;
           } else {
             $num = 1;
           }
-          $this->grid[$i][$j] = $num;
+          $grid[$i][$j] = $num;
         };
       };
-      return $this->grid;
+      return json_encode($grid);
     }
+    
     public function updateBlocks($blocks) {
-      $newGrid = array();
       foreach($blocks as $xKey=>$xValue) {
-        $newGrid[$xKey] = array();
         foreach($xValue as $jKey => $jValue) {
           $count = 0;
           $count += $blocks[intval($xKey) -1][intval($jKey)] ?? 0;
@@ -48,15 +44,14 @@
       return json_encode($newGrid);
     }
   }
-  $newGrid = new Grid;
-  $blocks = $newGrid->initGrid();
 
-  if (isset($_POST['blocks']) && !empty($_POST['blocks'])) {
+  $grid = new Grid;
+
+  if (isset($_POST['blocks'])) {
     $blocks = $_POST['blocks'];
-    echo $newGrid->updateBlocks($blocks);
+    echo $grid->updateBlocks($blocks);
   }
-  if (isset($_GET['blocks']) && !empty($_GET['blocks'])) {
-    echo json_encode($newGrid->initGrid());
+  if (isset($_GET['blocks'])) {
+    echo $grid->initGrid();
   }
-
 ?>
